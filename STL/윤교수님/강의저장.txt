@@ -1,0 +1,27 @@
+#include<iostream>
+#include<fstream>
+
+using namespace std;
+
+void save(const char* fileName);
+
+int main()
+{
+	cout << "이 파일을 하드디스크에 저장하도록 하자" << endl;
+
+	save("save.cpp");
+}
+
+void save(const char* fileName)
+{
+	ifstream in(fileName);
+
+	ofstream out("강의저장.txt");
+
+	int c;
+
+	while ((c = in.get()) != EOF)
+		out << (char)c;
+
+	cout << fileName <<"을 강의저장.txt에 저장하였습니다." << endl;
+}

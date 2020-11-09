@@ -16,6 +16,9 @@ int main()
 	ios::binary로 저장할 경우 3자리->4바이트 4자리->5바이트...
 
 	숫자를 int로 메모장에 저장하는 법은?
+
+	어떻게 out때는 int로 하는 거지??
+	ifstream 
 	*/
 	char n{  };
 
