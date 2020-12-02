@@ -18,8 +18,9 @@ public:
 	void setCellAt(size_t x, size_t y, const SpreadsheetCell& cell);
 	SpreadsheetCell& getCellAt(size_t x, size_t y);
 private:
+	Spreadsheet() = default;
 	void cleanup()noexcept;
-	void moveFrom(Spreadsheet& src)noexcept;
+	//void moveFrom(Spreadsheet& src)noexcept;
 
 	void verifyCoordinate(size_t x, size_t y) const;
 	size_t mWidth = 0;
