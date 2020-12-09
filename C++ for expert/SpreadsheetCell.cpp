@@ -10,7 +10,7 @@ SpreadsheetCell::SpreadsheetCell(double initialValue)
 }
 SpreadsheetCell::SpreadsheetCell(string_view initialValue)
 {
-	setString(initialValue);
+	set(initialValue);
 }
 SpreadsheetCell& SpreadsheetCell::operator=(const SpreadsheetCell& rhs)
 {
@@ -21,22 +21,17 @@ SpreadsheetCell& SpreadsheetCell::operator=(const SpreadsheetCell& rhs)
 }
 //SpreadsheetCell::SpreadsheetCell(const SpreadsheetCell& src)
 //	:m1(src.m1),m2(src.m2).... -> 기본 복제 생성자는 이렇게 인자를 복사해준다.
-void SpreadsheetCell::setValue(double inValue)
+void SpreadsheetCell::set(double inValue)
 {
 	mValue = inValue;
 }
-double SpreadsheetCell::getValue() const
-{
-	return mValue;
-}
-void SpreadsheetCell::setString(string_view inString)
+void SpreadsheetCell::set(string_view inString)
 {
 	mValue = stringToDouble(inString);
 }
-string SpreadsheetCell::getString() const
-{
-	return doubleToString(mValue);
-}
+
+
+
 string SpreadsheetCell::doubleToString(double inValue) const
 {
 	return to_string(inValue);

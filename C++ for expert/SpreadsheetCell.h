@@ -19,13 +19,22 @@ public:
 	//SpreadsheetCell(const SpreadsheetCell& src);
 	SpreadsheetCell& operator=(const SpreadsheetCell& rhs);
 
-	void setValue(double inValue);
-	double getValue()const;
-
-	void setString(std::string_view inString);
-	std::string getString() const;
+	void set(double inValue);
+	void set(std::string_view inString);
+	
+	double getValue()const //인라인함수
+	{
+		mNumAccesses++;
+		return mValue;
+	}
+	std::string getString() const
+	{
+		mNumAccesses++;
+		return doubleToString(mValue);
+	}
 private:
 	std::string doubleToString(double inValue)const;
 	double stringToDouble(std::string_view inString) const;
 	double mValue = 0;
+	mutable size_t mNumAccesses = 0;
 };

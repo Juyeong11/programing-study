@@ -1,7 +1,8 @@
 #include<stdexcept>
 #include "Spreadsheet.h"
 
-Spreadsheet::Spreadsheet(size_t width, size_t height):mWidth(width),mHeight(height)
+Spreadsheet::Spreadsheet(size_t width, size_t height):
+	Id(sCounter++), mWidth(std::min(width, kMaxWidth)), mHeight(std::min(height,kMaxHeight))
 {
 	mCells = new SpreadsheetCell * [mWidth];
 	for (size_t i = 0; i < mWidth; ++i) {
@@ -11,10 +12,7 @@ Spreadsheet::Spreadsheet(size_t width, size_t height):mWidth(width),mHeight(heig
 
 Spreadsheet::~Spreadsheet()
 {
-	for (size_t i = 0; i < mWidth; ++i)
-		delete[] mCells[i];
-	delete[] mCells;
-	mCells = nullptr;
+	cleanup();
 }
 
 Spreadsheet::Spreadsheet(const Spreadsheet& src):
@@ -74,7 +72,15 @@ void Spreadsheet::cleanup() noexcept
 	mWidth = mHeight = 0;
 }
 
-
+const SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y) const
+{
+	verifyCoordinate(x, y);
+	return mCells[x][y];
+}
+SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y)
+{
+	return const_cast<SpreadsheetCell&>(std::as_const(*this).getCellAt(x, y));
+}
 
 void Spreadsheet::verifyCoordinate(size_t x, size_t y) const
 {
