@@ -34,8 +34,8 @@ int main()
 	auto start = steady_clock::now();
 
 	ifstream in("정수1000만개.data", ios::binary);
-	//6832 -> 매 비교마다 함수 포인터를 통해 간접 호출을 수행하기 때문에 최적화가 힘들다
-	//	12 -> c++의 템플릿이 특정 데이터형과 비교 함수에 대해 최적화된 코드를 생성한다.
+	//정렬 시간6832 -> 매 비교마다 함수 포인터를 통해 간접 호출을 수행하기 때문에 최적화가 힘들다
+	//정렬 시간	12 -> c++의 템플릿이 특정 데이터형과 비교 함수에 대해 최적화된 코드를 생성한다.
 	in.read((char*)&mydata, sizeof(int) * 10'0000);
 
 	qsort(mydata, 100000, sizeof(int) ,[](const void* a, const void* b) {
