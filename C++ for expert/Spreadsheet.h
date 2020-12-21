@@ -2,15 +2,24 @@
 #include<cstddef>
 #include"SpreadsheetCell.h"
 
+class SpreadsheetApplication;//포워드 선언 /순환참조 방지?
+
 class Spreadsheet
 {
 public:
-	Spreadsheet(size_t width, size_t height = 100);//둘다 디폴트 인수가 있으면 기본생성자와 구분이 안가 컴파일 오류발생
+	class Cell;
+	static const size_t kMaxHeight = 100;
+	static const size_t kMaxWidth = 100;
+
+	 //기본 매개변수는 오른쪽 부터 채워 나가야 된다.
+	//Spreadsheet(size_t width = kMaxWidth, size_t height = kMaxHeight,const SpreadsheetApplication& theApp);//둘다 디폴트 인수가 있으면 기본생성자와 구분이 안가 컴파일 오류발생
+	Spreadsheet(size_t width, size_t height ,const SpreadsheetApplication& theApp);//둘다 디폴트 인수가 있으면 기본생성자와 구분이 안가 컴파일 오류발생
+
 	//Spreadsheet(const Spreadsheet& src) = delete;
 	~Spreadsheet();
 	Spreadsheet(const Spreadsheet& src);
 	Spreadsheet& operator=(const Spreadsheet& rhs);
-	friend void swap(Spreadsheet& first, Spreadsheet& second)noexcept;
+	friend void swap(Spreadsheet& first, Spreadsheet& second)noexcept;//클래스 멤버로 만들어되 되지만 표준라이브러리 알고리즘에서 활용할 수 있게 비멤버로 만든다.
 
 	Spreadsheet(Spreadsheet&& src)noexcept;
 	Spreadsheet& operator=(Spreadsheet&& rhs)noexcept;
@@ -27,8 +36,7 @@ private:
 	static inline size_t sCounter = 0;//inline붙이면 가능
 	size_t Id = 0;
 
-	static const size_t kMaxHeight = 100;
-	static const size_t kMaxWidth = 100;
+	const SpreadsheetApplication& mTheApp;
 
 	Spreadsheet() = default;
 	void cleanup()noexcept;
@@ -38,4 +46,9 @@ private:
 	size_t mWidth = 0;
 	size_t mHeight = 0;
 	SpreadsheetCell** mCells = nullptr;
+};
+class Spreadsheet::Cell
+{//중첩클래스
+public:
+	Cell() = default;
 };

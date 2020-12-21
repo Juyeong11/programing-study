@@ -1,8 +1,9 @@
 #include<stdexcept>
 #include "Spreadsheet.h"
 
-Spreadsheet::Spreadsheet(size_t width, size_t height):
-	Id(sCounter++), mWidth(std::min(width, kMaxWidth)), mHeight(std::min(height,kMaxHeight))
+Spreadsheet::Spreadsheet(size_t width, size_t height,const SpreadsheetApplication& theApp):
+	Id(sCounter++), mWidth(std::min(width, kMaxWidth)), mHeight(std::min(height,kMaxHeight),
+	mTheApp(theApp))
 {
 	mCells = new SpreadsheetCell * [mWidth];
 	for (size_t i = 0; i < mWidth; ++i) {
@@ -16,7 +17,7 @@ Spreadsheet::~Spreadsheet()
 }
 
 Spreadsheet::Spreadsheet(const Spreadsheet& src):
-	Spreadsheet(src.mWidth,src.mHeight)//위임생성자
+	Spreadsheet(src.mWidth,src.mHeight,mTheApp)//위임생성자
 {
 	for (size_t i = 0; i < mWidth; ++i) {
 		for (size_t j = 0; j < mHeight; ++i) {
