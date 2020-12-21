@@ -12,7 +12,7 @@
 #include "String.h"
 
 // 관찰메시지를 출력하려면 주석을 제거할 것
-#define 관찰
+//#define 관찰
 
 String::String() {
 #ifdef 관찰
