@@ -10,7 +10,7 @@ using namespace std;
 
 array<int, 10'000'000> mydata;
 array<int, 10'000'000> mydata1;
-
+//list<Player> players{ istream_iterator<Player>(in),istream_iterator<Player>() };
 int main()
 {
 	//
