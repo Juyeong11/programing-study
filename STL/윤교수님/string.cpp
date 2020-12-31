@@ -141,30 +141,34 @@ bool String::operator<(const String& rhs) const {
 // 반복자를 위한 멤버
 // 2020. 4. 25 추가
 
+//char* String::begin()
+//{
+//	
+////STL의 반복자를 리턴하는 함수는 포인터를 반환하는 것이 아니라 iterator라는 클래스 타입을 리턴한다.
+////즉 반복자는 포인터를 추상화한 것이지 포인터는 아니다.
+//
+//	return p;
+//}
+//char* String::end()
+//{
+//	return p + len;
+//}
 String::iterator String::begin()
 {
 	return iterator(p);
 }
-
 String::iterator String::end()
 {
 	return iterator(p + len);
 }
-
 String::reverse_iterator String::rbegin()
 {
 	return reverse_iterator(p + len);
 }
-
 String::reverse_iterator String::rend()
 {
 	return reverse_iterator(p);
 }
-
-
-
-
-
 std::ostream& operator<<(std::ostream& os, const String& s)
 {
 	//	for ( int i = 0; i < s.len; ++i )

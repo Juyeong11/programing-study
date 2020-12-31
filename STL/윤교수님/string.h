@@ -13,113 +13,88 @@
 
 class String_Iterator {
 	char* p{ nullptr };
-
 public:
+	String_Iterator(char* p) :p{ p } {};
 
-
-	String_Iterator(char* p) : p{ p } { };
-
-	bool operator!=(const String_Iterator& rhs) const {
-		return p != rhs.p;
+	bool operator!=(const String_Iterator& other) const
+	{
+		return p != other.p;
 	}
-
-	// 2020. 4. 27 추가
-	bool operator==(const String_Iterator& rhs) const {
-		return p == rhs.p;
-	}
-
-
-	String_Iterator& operator++() {
-		++p;
+	String_Iterator& operator++()
+	{
+		++p;//범위를 넘어가면?
 		return *this;
 	}
-
-
-	//  2020. 5. 1 수정 - const
-	//	char operator*( ) const {
-	//		return *p;
-	//	}
-
-	char& operator*() const {
+	bool operator==(const String_Iterator& rhs)const
+	{
+		return *p == *rhs.p;
+	}
+	String_Iterator& operator--()
+	{
+		--p;
+		return *this;
+	}
+	char& operator*()const
+	{
 		return *p;
 	}
-
-	ptrdiff_t operator-(const String_Iterator& rhs) const {
+	ptrdiff_t operator-(const String_Iterator& rhs)const
+	{
 		return p - rhs.p;
 	}
 
-	// 2020. 5. 1 추가 - sort 가능하게
-
-
-	String_Iterator operator+(int n) const {
+	//ptrdiff_t operator+(const String_Iterator& rhs)const
+	//{
+	//	//return p + rhs.p;
+	//}
+	String_Iterator operator+(int n)const {
 		return p + n;
 	}
-
-	bool operator<(const String_Iterator& rhs) const {
-		return p < rhs.p;			// 잘못하기 쉽다
-	}
-
-
-	String_Iterator operator-(int n) const {
+	String_Iterator operator-(int n)const {
 		return p - n;
 	}
-
-	String_Iterator& operator--() {
-		--p;
-		return *this;
+	bool operator<(const String_Iterator& rhs)const
+	{
+		//	return *p < *rhs.p; 포인터가 가리키고 있는 값을 비교해야 되는거 아닌가?
+		return p < rhs.p;
 	}
-
-	char operator[] (int n) const {
+	
+	char operator[](int n)const {
 		return *(p + n);
 	}
-
-	char& operator[] (int n) {
+	char& operator[](int n) {
 		return *(p + n);
 	}
 };
-
-
-
-// 2020. 4. 26
-template <>
-struct std::iterator_traits<String_Iterator> {
-
-	using iterator_category = random_access_iterator_tag;
-	using value_type = char;
-	using difference_type = ptrdiff_t;
-	using pointer = char*;
-	using reference = char&;
-
-};
-
-
-
-
+template<class T>
 class String_Reverse_Iterator {
-	char* p{ nullptr };
-
+	T p{ nullptr };
 public:
-	String_Reverse_Iterator(char* p) : p{ p } { };
+	String_Reverse_Iterator(T p) :p(p) {};
 
-	bool operator!=(const String_Reverse_Iterator& rhs) const {
+	bool operator!=(const String_Reverse_Iterator& rhs) const
+	{
 		return p != rhs.p;
 	}
-
-	String_Reverse_Iterator& operator++() {
+	String_Reverse_Iterator& operator++()
+	{
 		--p;
 		return *this;
 	}
-
-	char operator*() {
-		return *(p - 1);
+	char operator*()
+	{
+		return *(p - 1);//reverse_iterator는 *연산을 하면 가리키고 있는 원소의 이전 원소값을 리턴한다.
 	}
 };
 
-
-
-
-
-
+template <>
+struct std::iterator_traits<String_Iterator> {
+	using iterator_category = random_access_iterator_tag;
+	using value_type = char;//??
+	using difference_type = ptrdiff_t;
+	using pointer = char*;
+	using regerence = char&;
+};
 class String {
 	size_t len{ 0 };
 	char* p{ nullptr };
@@ -157,16 +132,15 @@ public:
 
 	// 반복자를 위한 멤버
 	// 2020. 4. 25 추가
+
+
 	using iterator = String_Iterator;
-	using reverse_iterator = String_Reverse_Iterator;
-
-
+	using reverse_iterator = String_Reverse_Iterator<char*>;
 	iterator begin();
 	iterator end();
 
 	reverse_iterator rbegin();
 	reverse_iterator rend();
-
 
 	friend std::ostream& operator<<(std::ostream& os, const String& s);
 };
