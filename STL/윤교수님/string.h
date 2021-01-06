@@ -16,21 +16,17 @@ class String_Iterator {
 public:
 	String_Iterator(char* p) :p{ p } {};
 
-	bool operator!=(const String_Iterator& other) const
-	{
-		return p != other.p;
+	
+	bool operator !=(const String_Iterator& rhs)const {
+		return p != rhs.p;
 	}
-	String_Iterator& operator++()
-	{
-		++p;//범위를 넘어가면?
+
+
+	String_Iterator& operator ++() {
+		++p;
 		return *this;
 	}
-	bool operator==(const String_Iterator& rhs)const
-	{
-		return *p == *rhs.p;
-	}
-	String_Iterator& operator--()
-	{
+	String_Iterator& operator --() {
 		--p;
 		return *this;
 	}
@@ -38,34 +34,34 @@ public:
 	{
 		return *p;
 	}
-	ptrdiff_t operator-(const String_Iterator& rhs)const
-	{
-		return p - rhs.p;
-	}
-
-	//ptrdiff_t operator+(const String_Iterator& rhs)const
+	//char operator*()
 	//{
-	//	//return p + rhs.p;
+	//	return *p;
 	//}
-	String_Iterator operator+(int n)const {
-		return p + n;
+	String_Iterator operator+(int n) {
+		return p + n;//새로운 객체가 생성되는거 아니야?
 	}
-	String_Iterator operator-(int n)const {
-		return p - n;
+	String_Iterator operator-(int n) {
+		return p - n;//새로운 객체가 생성되는거 아니야?
 	}
-	bool operator<(const String_Iterator& rhs)const
-	{
-		//	return *p < *rhs.p; 포인터가 가리키고 있는 값을 비교해야 되는거 아닌가?
+	bool operator<(const String_Iterator rhs)const {
 		return p < rhs.p;
 	}
-	
-	char operator[](int n)const {
-		return *(p + n);
+	bool operator==(const String_Iterator rhs)const {
+		return p == rhs.p;
 	}
-	char& operator[](int n) {
+	ptrdiff_t operator-(const String_Iterator rhs)const {
+		return p - rhs.p;
+	}
+	char operator[](size_t n) const {
+		return *(p+n);
+	}
+	char& operator[](size_t n) {
 		return *(p + n);
 	}
 };
+
+
 template<class T>
 class String_Reverse_Iterator {
 	T p{ nullptr };
@@ -119,7 +115,10 @@ public:
 	char operator[](size_t idx) const;
 
 	size_t size() const;
-
+	char& get()
+	{
+		return *p;
+	}
 	std::string getString() const;
 
 	// 비교연산자
