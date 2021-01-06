@@ -46,7 +46,7 @@ int main()
 {
 	String str{ "The quick brown fox jumps over the lazy dog" };
 
-	cout << typeid(iterator_traits<String::iterator>::iterator_category).name() << endl;
+	//cout << typeid(iterator_traits<String::iterator>::iterator_category).name() << endl;
 	sort(str.begin(), str.end());
 	
 	for (auto a : str)
