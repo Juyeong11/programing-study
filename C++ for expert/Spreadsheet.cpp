@@ -1,38 +1,21 @@
 #include<stdexcept>
 #include "Spreadsheet.h"
 
-Spreadsheet::Spreadsheet(size_t width, size_t height,const SpreadsheetApplication& theApp):
-	Id(sCounter++), mWidth(std::min(width, kMaxWidth)), mHeight(std::min(height,kMaxHeight),
-	mTheApp(theApp))
+Spreadsheet::Spreadsheet(const SpreadsheetApplication& theApp, size_t width, size_t height)
 {
-	mCells = new SpreadsheetCell * [mWidth];
-	for (size_t i = 0; i < mWidth; ++i) {
-		mCells[i] = new SpreadsheetCell[mHeight];
-	}
+	mImpl = std::make_unique<Impl>(theApp, width, height);
 }
 
-Spreadsheet::~Spreadsheet()
-{
-	cleanup();
-}
 
-Spreadsheet::Spreadsheet(const Spreadsheet& src):
-	Spreadsheet(src.mWidth,src.mHeight,mTheApp)//위임생성자
+
+Spreadsheet::Spreadsheet(const Spreadsheet& src)
 {
-	for (size_t i = 0; i < mWidth; ++i) {
-		for (size_t j = 0; j < mHeight; ++i) {
-			mCells[i][j] = src.mCells[i][j];
-		}
-	}
+	mImpl = std::make_unique<Impl>(*src.mImpl);
 }
 
 Spreadsheet& Spreadsheet::operator=(const Spreadsheet& rhs)
 {
-	if (this == &rhs)
-		return *this;
-	//이렇게 하면 중간에 익셉션이 발생해도 객체는 변하지 않는다
-	Spreadsheet temp(rhs);
-	swap(*this, temp);
+	*mImpl = *rhs.mImpl;
 	return *this;
 }
 
@@ -53,16 +36,14 @@ Spreadsheet& Spreadsheet::operator=(Spreadsheet&& rhs) noexcept
 
 void Spreadsheet::setCellAt(size_t x, size_t y, const SpreadsheetCell& cell)
 {
-	verifyCoordinate(x, y);
-	mCells[x][y] = cell;
+	mImpl->setCellAt(x, y, cell);
 }
 
-SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y)
+SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y)const
 {
-	verifyCoordinate(x, y);
-	return mCells[x][y];
+	return mImpl->getCellAt(x, y);
 }
-
+/*구현 분리
 void Spreadsheet::cleanup() noexcept
 {
 	for (size_t i = 0; i < mWidth; ++i)
@@ -72,27 +53,86 @@ void Spreadsheet::cleanup() noexcept
 	mCells = nullptr;
 	mWidth = mHeight = 0;
 }
-
+*/
+/*
 const SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y) const
 {
 	verifyCoordinate(x, y);
 	return mCells[x][y];
 }
+*/
+/*
 SpreadsheetCell& Spreadsheet::getCellAt(size_t x, size_t y)
 {
 	return const_cast<SpreadsheetCell&>(std::as_const(*this).getCellAt(x, y));
 }
-
+*/
+/*구현부분 분리
 void Spreadsheet::verifyCoordinate(size_t x, size_t y) const
 {
 	if (x >= mWidth || y > mHeight)
 		throw std::out_of_range("");
 }
+*/
+
 void swap(Spreadsheet& first, Spreadsheet& second)noexcept
 {
 	using std::swap;
 
-	swap(first.mWidth, second.mWidth);
-	swap(first.mHeight, second.mHeight);
-	swap(first.mCells, second.mCells);
+	swap(first.mImpl, second.mImpl);
+}
+/// <summary>
+/// /////////////////////////////////////////
+/// </summary>
+/// <param name="Impl"></param>
+/// <returns></returns>
+
+void Spreadsheet::Impl::swap(Impl& other)noexcept
+{
+	using std::swap;
+	swap(mWidth, other.mWidth);
+	swap(mHeight, other.mHeight);
+	swap(mCells, other.mCells);
+}
+void Spreadsheet::Impl::verifyCoordinate(size_t x, size_t y)const
+{
+	if (x >= mWidth || y > mHeight)
+		throw std::out_of_range("");
+}
+Spreadsheet::Impl::Impl(const SpreadsheetApplication& theApp, size_t width, size_t height):
+	mTheApp(theApp),mWidth(width),mHeight(height)
+{
+	mCells = new SpreadsheetCell * [mWidth];
+	for (size_t i = 0; i < mWidth; ++i) {
+		mCells[i] = new SpreadsheetCell[mHeight];
+	}
+}
+Spreadsheet::Impl::Impl(const Impl& src):
+	Impl(src.mTheApp,src.mWidth,src.mHeight)
+{
+	for (size_t i = 0; i < mWidth; ++i) {
+		for (size_t j = 0; j < mHeight; ++i) {
+			mCells[i][j] = src.mCells[i][j];
+		}
+	}
+}
+Spreadsheet::Impl& Spreadsheet::Impl::operator=(const Impl& rhs)
+{
+	if (this == &rhs)
+		return *this;
+	//이렇게 하면 중간에 익셉션이 발생해도 객체는 변하지 않는다
+
+	Impl temp(rhs);
+	swap(temp);
+	return *this;
+}
+void Spreadsheet::Impl::setCellAt(size_t x, size_t y, const SpreadsheetCell& cell)
+{
+	verifyCoordinate(x, y);
+	mCells[x][y] = cell;
+}
+SpreadsheetCell& Spreadsheet::Impl::getCellAt(size_t x, size_t y)
+{
+	verifyCoordinate(x, y);
+	return mCells[x][y];
 }

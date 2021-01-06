@@ -1,5 +1,6 @@
 #include<string>
 #include<string_view>
+#include<optional>
 //문자열 타입 string을 반환하는 함수
 //std::string f();
 //
@@ -10,6 +11,7 @@
 //auto&& s2 = f();
 //OK: 함수 반환 값(임시 문자열 오브젝트) 우측 값 참조 타입으로 넘기면
 //    이 생존 기간은 변수 s2의 스코프가 끝날 때까지 연장 된다.
+/*
 class SpreadsheetCell {
 public:
 	
@@ -22,8 +24,7 @@ public:
 	SpreadsheetCell& operator=(const SpreadsheetCell& rhs);
 
 	enum class Color { Red = 1, Green, Blue, Yellow };
-	void setColor(Color color) { mColor = color; }
-	Color getColor()const { return mColor; }
+ 
 
 	void set(double inValue);
 	void set(std::string_view inString);
@@ -49,3 +50,12 @@ private:
 	Color mColor = Color::Red;
 };
 SpreadsheetCell operator+(const SpreadsheetCell& lhs, const SpreadsheetCell& rhs);
+*/
+
+class SpreadsheetCell
+{
+public:
+	virtual ~SpreadsheetCell() = default;
+	virtual void set(std::string_view inString)=0;//순수 가상메서드
+	virtual std::string getString() const=0;
+};

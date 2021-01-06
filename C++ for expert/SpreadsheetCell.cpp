@@ -1,6 +1,6 @@
 #include"SpreadsheetCell.h"
 using namespace std;
-
+/*
 //SpreadsheetCell myCell();-> 잘못된 문장이다 기본생성자를 호출하는 것이 아니고 함수를 선언한다고 여겨 에러는 나지 않지만 객체생성은 
 
 SpreadsheetCell::SpreadsheetCell(double initialValue)
@@ -40,6 +40,7 @@ double SpreadsheetCell::stringToDouble(string_view inString) const
 {
 	return strtod(inString.data(), nullptr);
 }
+
 SpreadsheetCell& SpreadsheetCell::operator+=(const SpreadsheetCell& rhs)
 {
 	set(getValue() + rhs.getValue());
@@ -50,4 +51,4 @@ SpreadsheetCell operator+(const SpreadsheetCell& lhs, const SpreadsheetCell& rhs
 	auto result(lhs);
 	result += rhs;
 	return result;//+=가 구현된경우는 코드 중복을 피하도록 이렇게 구현하도록 하자
-}
+}*/
