@@ -6,7 +6,7 @@ class UploadBuffer
 {
 public:
 	UploadBuffer(ID3D12Device* device, UINT elementCount, bool isConstantBuffer) :
-		mlsConstantBuffer(isConstantBuffer)
+		mIsConstantBuffer(isConstantBuffer)
 	{
 		mElementByteSize = sizeof(T);
 
@@ -20,7 +20,7 @@ public:
 			nullptr,
 			IID_PPV_ARGS(&mUploadBuffer)
 		);
-		mUploadBuffer->Map(0,nullptr,reinterpret_cast<void**>(&mMappedData))
+		mUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData));
 	}
 	UploadBuffer(const UploadBuffer& rhs) = delete;
 	UploadBuffer& operator=(const UploadBuffer& rhs) = delete;

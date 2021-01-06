@@ -1,29 +1,78 @@
 #include"D3D.h"
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (iMsg)
-	{
-	case WM_CREATE:
-		break;
-	case WM_KEYUP:
-		__fallthrough;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	}
-	return DefWindowProc(hwnd, iMsg, wParam, lParam);
+	return D3D::GetApp()->MsgProc(hwnd, iMsg, wParam, lParam);
 }
 
+D3D* D3D::mApp = nullptr;
 D3D::D3D(HINSTANCE hInstance) :D3D_hInstance(hInstance)
 {
-	
-
+	assert(mApp == nullptr);
+	mApp = this;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE D3D::DepthStencilView() const
 {
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
+}
+D3D::~D3D()
+{
+	if (md3dDevice != nullptr)
+		FlushCommandQueue();
+}
+D3D* D3D::GetApp()
+{
+	return mApp;
+}
+HINSTANCE D3D::AppInst() const
+{
+	return D3D_hInstance;
+}
+HWND D3D::MainWnd() const
+{
+	return hwnd;
+}
+float D3D::AspectRatio() const
+{
+	return static_cast<float>(mClientWidth)/mClientHeight;
+}
+bool D3D::Get4xMsaaState()const
+{
+	return m4xMsaaState;
+}
+void D3D::Set4xMsaaState(bool value)
+{
+	if (m4xMsaaState != value)
+	{
+		m4xMsaaState = value;
+
+		CreateSwapChain();
+		OnResize();
+	}
+}
+ID3D12Resource* D3D::CurrentBackBuffer()const
+{
+	return mSwapChainBuffer[mCurrBackBuffer].Get();
+}
+D3D12_CPU_DESCRIPTOR_HANDLE D3D::CurrentBackBufferView()const
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		mCurrBackBuffer,
+		mRtvDescriptorSize
+	);
+}
+
+
+bool D3D::Initialize()
+{
+	if (!InitMainWindow())
+		return false;
+	if (!InitDirect3D())
+		return false;
+
+	OnResize();
+	return true;
 }
 bool D3D::InitMainWindow()
 {
@@ -35,7 +84,7 @@ bool D3D::InitMainWindow()
 	wc.hInstance = D3D_hInstance;
 	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = L"Window Class Name";
 	if (!RegisterClass(&wc))
@@ -109,11 +158,11 @@ void D3D::CreateCommandObjects()
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue));
-	md3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mDIrectCmdListAlloc.GetAddressOf()));
+	md3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf()));
 	md3dDevice->CreateCommandList(0,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		mDIrectCmdListAlloc.Get(),
-		nullptr, 
+		mDirectCmdListAlloc.Get(),
+		nullptr,
 		IID_PPV_ARGS(mCommandList.GetAddressOf()));
 
 	mCommandList->Close();//처음 시작이 reset이기 때문에 닫은 상태로 시작하자
@@ -167,11 +216,11 @@ void D3D::OnResize()
 {
 	assert(md3dDevice);
 	assert(mSwapChain);
-	assert(mDIrectCmdListAlloc);
+	assert(mDirectCmdListAlloc);
 
 	FlushCommandQueue();
 
-	mCommandList->Reset(mDIrectCmdListAlloc.Get(), nullptr);
+	mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr);
 
 	for (int i = 0; i < SwapChainBufferCount; ++i)
 		mSwapChainBuffer[i].Reset();
@@ -253,8 +302,8 @@ void D3D::FlushCommandQueue()
 
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 
-	if (mFence->GetCompletedValue() < mCurrentFence){
-		HANDLE eventHandle = CreateEventEx(nullptr, NULL, false, EVENT_ALL_ACCESS);
+	if (mFence->GetCompletedValue() < mCurrentFence) {
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
 
 		mFence->SetEventOnCompletion(mCurrentFence, eventHandle);
 
@@ -262,16 +311,68 @@ void D3D::FlushCommandQueue()
 		CloseHandle(eventHandle);
 	}
 }
-bool D3D::Run()
+int D3D::Run()
 {
-	MSG msg;
+	MSG msg = { 0 };
 
-	while (GetMessage(&msg, NULL, 0, 0))
+	mTimer.Reset();
+
+	while (msg.message != WM_QUIT)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		// If there are Window messages then process them.
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		// Otherwise, do animation/game stuff.
+		else
+		{
+			mTimer.Tick();
+
+			if (!mAppPaused)
+			{
+			
+				Update(mTimer);
+				Draw(mTimer);
+				
+			}
+			else
+			{
+				Sleep(100);
+			}
+		}
 	}
 
 	return (int)msg.wParam;
 }
 
+
+
+LRESULT D3D::MsgProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (iMsg)
+	{
+	case WM_SIZE:
+		mClientWidth = LOWORD(lParam);
+		mClientHeight = HIWORD(lParam);
+		break;
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_LBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MOUSEMOVE:
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	}
+	return DefWindowProc(hwnd, iMsg, wParam, lParam);
+}
