@@ -17,6 +17,7 @@
 #include<unordered_map>
 #include<array>
 #include<string>
+
 #include <cassert>
 #include<comdef.h>
 inline std::wstring AnsiToWString(const std::string& str)
@@ -25,7 +26,7 @@ inline std::wstring AnsiToWString(const std::string& str)
 	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
 	return std::wstring(buffer);
 }
-class D3Dutil
+class d3dUtil
 {
 public:
 	static Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
@@ -80,6 +81,7 @@ struct MeshGeometry
 	Microsoft::WRL::ComPtr<ID3DBlob> IndexBufferCPU = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferGPU = nullptr;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferGPU = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferUploader = nullptr;

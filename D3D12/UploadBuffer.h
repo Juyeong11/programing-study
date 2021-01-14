@@ -11,7 +11,7 @@ public:
 		mElementByteSize = sizeof(T);
 
 		if (isConstantBuffer)
-			mElementByteSize = D3Dutil::CalcConstantBufferByteSize(sizeof(T));
+			mElementByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(T));
 		device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,

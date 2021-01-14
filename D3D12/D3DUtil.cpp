@@ -19,7 +19,7 @@ std::wstring DxException::ToString()const
 	return FunctionName + L" failed in " + Filename + L"; line " + std::to_wstring(LineNumber) + L"; error: " + msg;
 }
 
-ComPtr<ID3DBlob> D3Dutil::LoadBinary(const std::wstring& filename)
+ComPtr<ID3DBlob> d3dUtil::LoadBinary(const std::wstring& filename)
 {
 	std::ifstream fin(filename, std::ios::binary);
 
@@ -35,7 +35,7 @@ ComPtr<ID3DBlob> D3Dutil::LoadBinary(const std::wstring& filename)
 
 	return blob;
 }
-Microsoft::WRL::ComPtr<ID3D12Resource> D3Dutil::CreateDefaultBuffer(ID3D12Device* device,ID3D12GraphicsCommandList* cmdList,
+Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(ID3D12Device* device,ID3D12GraphicsCommandList* cmdList,
 	const void* initData, UINT64 byteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
 {
 	ComPtr<ID3D12Resource> defaultBuffer;
@@ -49,7 +49,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3Dutil::CreateDefaultBuffer(ID3D12Device
 		IID_PPV_ARGS(defaultBuffer.GetAddressOf()));
 
 	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(byteSize),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -70,7 +70,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3Dutil::CreateDefaultBuffer(ID3D12Device
 
 	return defaultBuffer;
 }
-ComPtr<ID3DBlob> D3Dutil::CompileShader(
+ComPtr<ID3DBlob> d3dUtil::CompileShader(
 	const std::wstring& filename,
 	const D3D_SHADER_MACRO* defines,
 	const std::string& entrypoint,
@@ -78,9 +78,9 @@ ComPtr<ID3DBlob> D3Dutil::CompileShader(
 )
 {
 	UINT compileFlags = 0;
-
+#if defined(DEBUG) || defined(_DEBUG)  
 	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-
+#endif
 
 	HRESULT hr = S_OK;
 
@@ -93,5 +93,6 @@ ComPtr<ID3DBlob> D3Dutil::CompileShader(
 	if (errors != nullptr)
 		OutputDebugStringA((char*)errors->GetBufferPointer());
 
+	ThrowIfFailed(hr);
 	return byteCode;
 }
