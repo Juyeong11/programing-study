@@ -34,9 +34,21 @@ String_back_insert_iterator String_back_inserter(String& c)
 {
 	return String_back_insert_iterator(c);
 }
+int a(int c)
+{
+	cout << "other0" << endl;
+	return c;
+}
+template<int ai>
+int a(int c)
+{
+	cout << "in" << endl;
+
+	return a(c);
+}
 
 int main()
-{
+{/*
 	string str{ "asdfsasdfweqf fawfcva" };
 	String other{"a"};
 	//other.resize(str.size());//왜 reserve가 안되지>?????
@@ -44,5 +56,6 @@ int main()
 	my_copy(begin(str), end(str), String_back_inserter(other));
 
 	for (int i = 0; i < str.size(); ++i)
-		cout << other[i];
+		cout << other[i];*/
+	int c = a<1>(3);
 }

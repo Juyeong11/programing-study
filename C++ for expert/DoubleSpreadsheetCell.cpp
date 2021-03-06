@@ -1,6 +1,7 @@
 #include"DoubleSpreadsheetCell.h"
 using namespace std;
 
+
 void DoubleSpreadsheetCell::set(double inDouble)
 {
 	mValue = inDouble;
